@@ -1,4 +1,4 @@
-export class PDFTextPropsPanel extends Autodesk.Viewing.UI.PropertyPanel {
+export class ViewTextPanel extends Autodesk.Viewing.UI.PropertyPanel {
   constructor(extension, id, title) {
       super(extension.viewer.container, id, title);
       this.extension = extension;
@@ -33,6 +33,11 @@ export class PDFTextPropsPanel extends Autodesk.Viewing.UI.PropertyPanel {
           this.addProperty('String ' + stringCount.toString(), text.string, 'PDF Text');
           stringCount++;
         }
+        //You can also change to use bounds.containsPoint() or bounds.containsBox() if you want to check for containment instead of intersection 
+        // if( bounds.containsPoint(text.boundingBox.center())) {
+        //   this.addProperty('String ' + stringCount.toString(), text.string, 'Matching Strings');
+        //   stringCount++;
+        // }
       }
       
     }

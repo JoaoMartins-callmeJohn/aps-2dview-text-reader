@@ -15,9 +15,9 @@
 // UNINTERRUPTED OR ERROR FREE.
 //
 
-import { PDFTextPropsPanel } from './PDFTextPropsPanel.js';
+import { ViewTextPanel } from './ViewTextPanel.js';
 
-class PDFTextPropsExtension extends Autodesk.Viewing.Extension{
+class ViewTextExtension extends Autodesk.Viewing.Extension{
   constructor(viewer, options) {
     super(viewer, options);
     this._button = null;
@@ -27,8 +27,8 @@ class PDFTextPropsExtension extends Autodesk.Viewing.Extension{
   }
 
   onToolbarCreated(toolbar) {
-    this._panel = new PDFTextPropsPanel(this, 'pdf-text-props-panel', 'PDF Text Properties');
-    this._button = this.createToolbarButton('pdf-text-props-button', 'https://img.icons8.com/ios/30/share-2--v1.png', 'PDF Text Properties');
+    this._panel = new ViewTextPanel(this, 'text-props-panel', 'Selected Element Text');
+    this._button = this.createToolbarButton('text-props-button', 'https://img.icons8.com/ios/50/text.png', 'Selected Element Text');
     this._button.onClick = async () => {
       this._panel.setVisible(!this._panel.isVisible());
       this._button.setState(this._panel.isVisible() ? Autodesk.Viewing.UI.Button.State.ACTIVE : Autodesk.Viewing.UI.Button.State.INACTIVE);
@@ -36,10 +36,15 @@ class PDFTextPropsExtension extends Autodesk.Viewing.Extension{
   }
 
   async onObjectTreeCreated(event){
-    await this.viewer.loadExtension("Autodesk.StringExtractor")
-    this.stringExtractor = this.viewer.getExtension('Autodesk.StringExtractor')
-    await this.stringExtractor.extractStringsFromModel(this.viewer.model)
-    this._panel.text  = this.stringExtractor.documentStrings[1].strings
+    this.viewer.loadExtension("Autodesk.StringExtractor")
+      .then(() => {
+        this.stringExtractor = this.viewer.getExtension('Autodesk.StringExtractor');
+        return this.stringExtractor.extractStringsFromModel(this.viewer.model);
+      }).then(() => {
+        this._panel.text = this.stringExtractor.documentStrings[1].strings;
+      }).catch((error) => {
+        console.error('Error loading or extracting strings:', error);
+      });
   }
 
   onSelectionChanged(event) {
@@ -71,7 +76,7 @@ class PDFTextPropsExtension extends Autodesk.Viewing.Extension{
   }
 
   async load() {
-    console.log('PDF Text Properties Extension has been loaded.');
+    console.log('View Text Extension has been loaded.');
     this.viewer.addEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, this._onObjectTreeCreated);
     return true;
   }
@@ -90,4 +95,4 @@ class PDFTextPropsExtension extends Autodesk.Viewing.Extension{
   }
 }
 
-Autodesk.Viewing.theExtensionManager.registerExtension('PDFTextPropsExtension', PDFTextPropsExtension);
+Autodesk.Viewing.theExtensionManager.registerExtension('ViewTextExtension', ViewTextExtension);
