@@ -3,7 +3,7 @@
 ## Introduction
 
 If you're familiar with APS and Viewer you're probably already aware of the methods to retrieve the properties from elements. But what about the text available in your 2D designs? This is what we will cover in this repo.
-We are going to build an extension that returns the texts from the selected element in Viewer and writa that in a property panel.
+We are going to build an extension that returns the texts from one specific region in Viewer and write that in a property panel.
 
 ## How it works?
 
@@ -46,17 +46,22 @@ Each  string object has a structure similar to the one below:
     stringWidth: 29.345241959999996
 }
 ```
-In our sample, we'll use the **boundingBox** to filter the strings associated with the selected elements in our view.
-For that, we'll react to the **SELECTION_CHANGED_EVENT** in a way that every time the user selects some element, we are going to compare this element's bounding box with the strings bounding box.
+
+## How to filter the text
+
+We'll use the **boundingBox** of the strings to filter those associated with the selected region in our view.
+For that, we'll leverage the `Autodesk.BoxSelection` extension in a way that every time the user selects one region, we are going to compare this region's bounding box with the strings bounding box.
 
 This comparision cal leverage common bounding box methods like `intersectsBox`, `containsPoint` and `containsBox`. Your choice will affect what the extension matches.
 
- > To find the selected elements bounding box we used the same approach explanied at https://aps.autodesk.com/blog/working-2d-and-3d-scenes-and-geometry-forge-viewer
-
 ## Tips and Tricks
 
+> Another way to achieve that would be by comparing the bounding box of the selected element with the bouding box of the strings from the model, but that is very error prone due to a considerable amount of reasons: You might be working with a sheet where the same element is present in many viewports, or maybe your text isn't close to any selectable element, or your drawing has many dimensions (the callouts are also considered for the bounding box).
+If you wanna give this approach a try, thats available in the [selection_based](https://github.com/JoaoMartins-callmeJohn/aps-pdf-text-reader/tree/selection_based) branch of the source code.
+
 For a better match you might want to adjust the bounding box comparision logic based on the center point of texts.
-Dimensions are trickier as the callouts are also considered for the bounding boxes.
+
+The text is returned different if you compare legacy format with the PDF one.
 
 ## License
 

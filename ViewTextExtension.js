@@ -22,7 +22,8 @@ class ViewTextExtension extends Autodesk.Viewing.Extension{
     super(viewer, options);
     this._button = null;
     this._panel = null;
-    viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, this.onSelectionChanged.bind(this));
+    //add event listener to mouse up event
+    document.addEventListener('mouseup', this.onMouseUp.bind(this));
     viewer.addEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, this.onObjectTreeCreated.bind(this));
   }
 
@@ -41,14 +42,22 @@ class ViewTextExtension extends Autodesk.Viewing.Extension{
         this.stringExtractor = this.viewer.getExtension('Autodesk.StringExtractor');
         return this.stringExtractor.extractStringsFromModel(this.viewer.model);
       }).then(() => {
-        this._panel.text = this.stringExtractor.documentStrings[1].strings;
+        this._panel.text = Object.values(this.stringExtractor.documentStrings)[0].strings;
       }).catch((error) => {
         console.error('Error loading or extracting strings:', error);
       });
   }
 
-  onSelectionChanged(event) {
-    this._panel.update(event.dbIdArray);
+  onMouseUp(event) {
+    const boxSelectionTool = this.viewer.getExtension('Autodesk.BoxSelection').boxSelectionTool;
+    if (boxSelectionTool.isActive()) {
+      let startPoint = this.viewer.clientToWorld(boxSelectionTool.startPoint.x, boxSelectionTool.startPoint.y);
+      let endPoint = this.viewer.clientToWorld(boxSelectionTool.endPoint.x, boxSelectionTool.endPoint.y);
+        const boundingbox = new THREE.Box2(startPoint,endPoint);
+        if (this._panel) {
+          this._panel.update(boundingbox);
+        }
+      }
   }
 
   createToolbarButton(buttonId, buttonIconUrl, buttonTooltip) {
@@ -77,7 +86,6 @@ class ViewTextExtension extends Autodesk.Viewing.Extension{
 
   async load() {
     console.log('View Text Extension has been loaded.');
-    this.viewer.addEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, this._onObjectTreeCreated);
     return true;
   }
 

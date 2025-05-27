@@ -40,6 +40,10 @@
   <div id="header">
     <img class="logo" src="https://cdn.autodesk.io/logo/black/stacked.png " alt="Autodesk Platform Services">
     <span class="title">Simple Viewer Text Reader</span>
+    <select id="modelSelector" onchange="loadModel(this.value)">
+      <option value="dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6anBvbS1kZWJ1Zy10ZXN0LWJ1Y2tldC90ZXh0c2ludmlldzEwMWYyZC5ydnQ">Legacy</option>
+      <option value="dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6anBvbS1kZWJ1Zy10ZXN0LWJ1Y2tldC90ZXh0c2ludmlldzEwMXBkZi5ydnQ">PDF</option>
+    </select>
   </div>
   <div id="viewerContainer" class="apsViewer">
   </div>
@@ -50,8 +54,17 @@
 
 <script>
   var tokenurl = 'https://9sjonbv0c5.execute-api.us-east-1.amazonaws.com/default/aps-2lo-lambda';
-
   var viewer;
+  
+  async function loadModel(urn) {
+    Autodesk.Viewing.Document.load(`urn:${urn}`, doc => {
+          var viewables = doc.getRoot().getSheetNodes()[0];
+          viewer.loadDocumentNode(doc, viewables, {
+            extendStringsFetching: true
+          });
+        });
+  }
+
   async function initViewers() {
     await fetch(tokenurl,{
     method: 'GET', // or 'POST', 'PUT', 'DELETE', etc.
@@ -62,7 +75,7 @@
       return response.json();
     }).then(function (token) {
       // Sample urns
-      let urns = ['dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6anBvbS1kZWJ1Zy10ZXN0LWJ1Y2tldC9Bc3NlbWJseSUyMEMxMDExJTIwU2hlZXQlMjAxMDgyLmR3Zw'];
+      let urn = document.getElementById("modelSelector").value;
 
       const options = {
         env: 'AutodeskProduction',
@@ -72,22 +85,19 @@
       Autodesk.Viewing.Initializer(options, () => {
         let viewerDiv = document.getElementById("viewerContainer");
         const config = {
-          extensions: ['Autodesk.DocumentBrowser', 'ViewTextExtension']
+          extensions: ['Autodesk.DocumentBrowser', 'ViewTextExtension', 'Autodesk.BoxSelection']
         };
         viewer = new Autodesk.Viewing.Private.GuiViewer3D(viewerDiv, config);
         viewer.start();
         viewer.setTheme("light-theme");
       });
 
-      urns.map((urn, index) => {
-        Autodesk.Viewing.Document.load(`urn:${urn}`, doc => {
-          var viewables = doc.getRoot().getDefaultGeometry();
+      Autodesk.Viewing.Document.load(`urn:${urn}`, doc => {
+          var viewables = doc.getRoot().getSheetNodes()[0];
           viewer.loadDocumentNode(doc, viewables, {
-            keepCurrentModels: true,
             extendStringsFetching: true
           });
         });
-      });
     });
   }
 
