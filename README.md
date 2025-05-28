@@ -52,6 +52,42 @@ Each  string object has a structure similar to the one below:
 We'll use the **boundingBox** of the strings to filter those associated with the selected region in our view.
 For that, we'll leverage the `Autodesk.BoxSelection` extension in a way that every time the user selects one region, we are going to compare this region's bounding box with the strings bounding box.
 
+We start by reacting to the mouse up event every time the boxselection tool is set to active:
+
+```js
+onMouseUp(event) {
+    const boxSelectionTool = this.viewer.getExtension('Autodesk.BoxSelection').boxSelectionTool;
+    if (boxSelectionTool.isActive()) {
+        let startPoint = this.viewer.clientToWorld(boxSelectionTool.startPoint.x, boxSelectionTool.startPoint.y);
+        let endPoint = this.viewer.clientToWorld(boxSelectionTool.endPoint.x, boxSelectionTool.endPoint.y);
+        //convert to THREE.Vector2
+        startPoint = new THREE.Vector2(startPoint.point.x, startPoint.point.y);
+        endPoint = new THREE.Vector2(endPoint.point.x, endPoint.point.y);
+        const boundingbox = new THREE.Box2(startPoint,endPoint);
+        if (this._panel) {
+          this._panel.update(boundingbox);
+        }
+    }
+}
+```
+
+And inside the panel update function we perform the match
+
+```js
+async update(regionBox) {
+    this.removeAllProperties();
+    let stringCount = 1;
+    //Now we check which geometries intersect with the bounding box
+    for(const text of this.text) {
+        //You can also change to use regionBox.intersectsBox() or regionBox.containsPoint() or regionBox.containsBox() if you want to check for containment instead of intersection 
+        if (regionBox.intersectsBox(text.boundingBox)) {
+            this.addProperty('String ' + stringCount.toString(), text.string, 'PDF Text');
+            stringCount++;
+        }
+    }
+}
+```
+
 This comparision cal leverage common bounding box methods like `intersectsBox`, `containsPoint` and `containsBox`. Your choice will affect what the extension matches.
 
 ## Tips and Tricks
