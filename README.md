@@ -63,6 +63,12 @@ onMouseUp(event) {
         //convert to THREE.Vector2
         startPoint = new THREE.Vector2(startPoint.point.x, startPoint.point.y);
         endPoint = new THREE.Vector2(endPoint.point.x, endPoint.point.y);
+        // find the point with min y and use it as the start point
+        if (startPoint.y > endPoint.y) {
+          const temp = startPoint;
+          startPoint = endPoint;
+          endPoint = temp;
+        }
         const boundingbox = new THREE.Box2(startPoint,endPoint);
         if (this._panel) {
           this._panel.update(boundingbox);
