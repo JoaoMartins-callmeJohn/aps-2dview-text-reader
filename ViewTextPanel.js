@@ -10,7 +10,7 @@ export class ViewTextPanel extends Autodesk.Viewing.UI.PropertyPanel {
     let stringCount = 1;
     //Now we check which geometries intersect with the bounding box
     for(const text of this.text) {
-      if (regionBox.containsBox(text.boundingBox)) {
+      if (regionBox.intersectsBox(text.boundingBox)) {
         this.addProperty('String ' + stringCount.toString(), text.string, 'PDF Text');
         stringCount++;
       }

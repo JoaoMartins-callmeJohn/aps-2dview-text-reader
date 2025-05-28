@@ -51,8 +51,11 @@ class ViewTextExtension extends Autodesk.Viewing.Extension{
   onMouseUp(event) {
     const boxSelectionTool = this.viewer.getExtension('Autodesk.BoxSelection').boxSelectionTool;
     if (boxSelectionTool.isActive()) {
-      let startPoint = this.viewer.clientToWorld(boxSelectionTool.startPoint.x, boxSelectionTool.startPoint.y);
-      let endPoint = this.viewer.clientToWorld(boxSelectionTool.endPoint.x, boxSelectionTool.endPoint.y);
+        let startPoint = this.viewer.clientToWorld(boxSelectionTool.startPoint.x, boxSelectionTool.startPoint.y);
+        let endPoint = this.viewer.clientToWorld(boxSelectionTool.endPoint.x, boxSelectionTool.endPoint.y);
+        //convert to THREE.Vector2
+        startPoint = new THREE.Vector2(startPoint.point.x, startPoint.point.y);
+        endPoint = new THREE.Vector2(endPoint.point.x, endPoint.point.y);
         const boundingbox = new THREE.Box2(startPoint,endPoint);
         if (this._panel) {
           this._panel.update(boundingbox);
