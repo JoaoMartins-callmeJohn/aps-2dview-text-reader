@@ -5,6 +5,9 @@
 If you're familiar with APS and Viewer you're probably already aware of the methods to retrieve the properties from elements. But what about the text available in your 2D designs? This is what we will cover in this repo.
 We are going to build an extension that returns the texts from one specific region in Viewer and write that in a property panel.
 
+## LIVE DEMO
+https://autodesk-platform-services.github.io/aps-2dview-text-reader/
+
 ## How it works?
 
 First thing we'll do is retrieve all the text from our model, and that's done using the `Autodesk.StringExtractor` extension.
