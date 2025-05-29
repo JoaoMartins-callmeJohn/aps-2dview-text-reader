@@ -16,5 +16,6 @@ export class ViewTextPanel extends Autodesk.Viewing.UI.PropertyPanel {
         stringCount++;
       }
     }
+    return true;
   }
 }
